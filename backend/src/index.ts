@@ -3,34 +3,39 @@ import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import * as dotenv from "dotenv";
 dotenv.config();
+import { sign,verify } from 'hono/jwt'
+import { userRouter } from './routes/user';
+import { blogRouter } from './routes/blog';
 
-const prisma = new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL,
-}).$extends(withAccelerate())
 
-const app = new Hono()
 
-app.post('/api/v1/signup',(c)=>{
-  return c.text('signup note'); 
+ 
+const app = new Hono<{
+	Bindings: {
+		DATABASE_URL: string,
+    JWT_SECRET: string,
+	},
+  Variables : {
+		userId: string
+	}
+}>();
+
+app.use('/api/v1/blog/*', async (c, next) => {
+	const jwt = c.req.header('Authorization');
+  console.log(jwt);
+	if (!jwt) {
+		c.status(401);
+		return c.json({ error: "unauthorized" });
+	}
+	const token = jwt.split(' ')[1];
+	const payload = await verify(token, c.env.JWT_SECRET);
+	if (!payload) {
+		c.status(401);
+		return c.json({ error: "unauthorized" });
+	}
+	c.set('userId', payload.id as string);
+	await next()
 })
 
-app.post('/api/v1/signin',(c)=>{
-  return c.text('signin note'); 
-})
-
-app.post('/api/v1/blog',(c)=>{
-  return c.text('signup note'); 
-})
-
-app.put('/api/v1/blog',(c)=>{
-  return c.text('signup note'); 
-})
-
-app.get(`/api/v1/blog/:id`,(c)=>{
-  const id = c.req.param('id');
-  console.log(id);
-  return c.text('get blog route');
-})
-
-
-export default app
+app.route('/api/v1/user', userRouter)
+app.route('/api/v1/blog', blogRouter)

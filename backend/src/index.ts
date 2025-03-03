@@ -1,12 +1,17 @@
 import { Hono } from 'hono';
-import { PrismaClient } from '@prisma/client/edge'
-import { withAccelerate } from '@prisma/extension-accelerate'
+
 import * as dotenv from "dotenv";
 dotenv.config();
-import { sign,verify } from 'hono/jwt'
+import { verify } from 'hono/jwt'
 import { userRouter } from './routes/user';
 import { blogRouter } from './routes/blog';
 
+
+export default {
+  async fetch(request, env, ctx) {
+    return new Response("Hello, world!");
+  },
+};
 
 
  

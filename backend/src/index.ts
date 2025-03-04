@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-
+import {cors} from 'hono/cors'
 import * as dotenv from "dotenv";
 dotenv.config();
 import { verify } from 'hono/jwt'
@@ -7,11 +7,9 @@ import { userRouter } from './routes/user';
 import { blogRouter } from './routes/blog';
 
 
-export default {
-  async fetch(request, env, ctx) {
-    return new Response("Hello, world!");
-  },
-};
+
+
+
 
 
  
@@ -24,6 +22,7 @@ const app = new Hono<{
 		userId: string
 	}
 }>();
+app.use("/*",cors()); 
 
 app.use('/api/v1/blog/*', async (c, next) => {
 	const jwt = c.req.header('Authorization');
@@ -44,3 +43,5 @@ app.use('/api/v1/blog/*', async (c, next) => {
 
 app.route('/api/v1/user', userRouter)
 app.route('/api/v1/blog', blogRouter)
+
+export default app;

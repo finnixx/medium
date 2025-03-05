@@ -6,13 +6,6 @@ import { verify } from 'hono/jwt'
 import { userRouter } from './routes/user';
 import { blogRouter } from './routes/blog';
 
-
-
-
-
-
-
- 
 const app = new Hono<{
 	Bindings: {
 		DATABASE_URL: string,
@@ -22,6 +15,7 @@ const app = new Hono<{
 		userId: string
 	}
 }>();
+
 app.use("/*",cors()); 
 
 app.use('/api/v1/blog/*', async (c, next) => {

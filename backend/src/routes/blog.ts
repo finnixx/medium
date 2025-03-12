@@ -14,6 +14,7 @@ export const blogRouter = new Hono<{
 }>();
 
 blogRouter.post('/', async (c) => {
+	console.log("here");
 	const userId = c.get('userId');
 	const prisma = new PrismaClient({
 		datasourceUrl: c.env?.DATABASE_URL	,
@@ -25,17 +26,22 @@ blogRouter.post('/', async (c) => {
 		c.status(400);
 		return c.json({ error: "invalid input" });
 	}
+	console.log("creating post")
 	const post = await prisma.post.create({
 		data: {
 			title: body.title,
 			content: body.content,
 			authorId: userId
+
 		}
 	});
+	console.log(post)
 	return c.json({
 		id: post.id
 	});
 })
+
+
 blogRouter.put('/', async (c) => {
 	const userId = c.get('userId');
 	const prisma = new PrismaClient({
@@ -74,6 +80,16 @@ blogRouter.get('/:id', async (c) => {
 	const post = await prisma.post.findUnique({
 		where: {
 			id:id
+		},
+		select:{
+			id:true,
+			title:true,
+			content:true,
+			author:{
+				select:{
+					name:true
+				}
+			}
 		}
 	});
 
@@ -85,7 +101,14 @@ blogRouter.get('/api/v1/blog/bulk', async (c) => {
 		datasourceUrl: c.env?.DATABASE_URL	,
 	}).$extends(withAccelerate());
 	
-	const posts = await prisma.post.findMany({});
-
-	return c.json(posts);
+	try	{const posts = await prisma.post.findMany({
+		include: {
+			author: true,
+		}
+		});
+		return c.json(posts);
+	}
+	catch(e){
+		return c.json (e);
+	}
 })

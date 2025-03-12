@@ -1,29 +1,38 @@
 import { AppBar } from "../components/AppBar"
 import { BlogCard } from "../components/BlogCard"
+import { BlogSkeleton } from "../components/BlogSkeleton";
+import { useBlogs } from "../hooks";
 
 
 export const Blogs=()=>{
+    const {loading,blogs} = useBlogs();
+
+    if(loading){
+        return<div>
+            <AppBar/>
+            <div className="flex justify-center ">
+                <div>
+                    <BlogSkeleton/>
+                    <BlogSkeleton/>
+                    <BlogSkeleton/>
+                    <BlogSkeleton/>
+                    <BlogSkeleton/>
+                    <BlogSkeleton/>
+                </div>
+            </div>
+        </div>
+    }
     return <div>
     <AppBar/>
-    
     <div className="flex justify-center">
         <div className="max-w-xl">
-            <BlogCard authorName={"Kushal"} 
-                    title={"title of the blog"} 
-                    content={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."} 
+            {blogs.map(blog=><BlogCard 
+                    id={blog.id}
+                    authorName={blog.authorName ||"Anonymous"} 
+                    title={blog.title} 
+                    content={blog.content} 
                     publishedDate={"2nd Feb 2024"}
-            />
-            <BlogCard authorName={"Kushal"} 
-                    title={"title of the blog"} 
-                    content={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."} 
-                    publishedDate={"2nd Feb 2024"}
-            />
-            <BlogCard authorName={"Kushal"} 
-                    title={"title of the blog"} 
-                    content={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."} 
-                    publishedDate={"2nd Feb 2024"}
-            />
-            
+            />)}  
         </div>
     </div>
     </div>
